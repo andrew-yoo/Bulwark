@@ -12,7 +12,7 @@ def xchacha(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]:
         plaintext (bytes): The plaintext to encrypt
 
     Returns:
-        bytes: The encrypted ciphertext 
+        tuple: A tuple containing the nonce and the encrypted ciphertext 
     """
     xchacha_nonce = secrets.token_bytes(24)
     cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
@@ -22,7 +22,16 @@ def xchacha(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]:
 
 def xchacha_camellia_aes(xchacha_key: bytes, camellia_key: bytes, aes_key: bytes, plaintext: bytes) -> tuple[bytes, bytes, bytes, bytes]:
     """
-    Use XChaCha20, AES-256-CTR, and Serpent-256-CTR cascaded to encrypt data.
+    Use XChaCha20, Camellia-CTR, and AES-256-CTR cascaded to encrypt data.
+
+    Args:
+        xchacha_key (bytes): The key for XChaCha20
+        camellia_key (bytes): The key for Camellia (32 bytes)
+        aes_key (bytes): The key for AES (32 bytes)
+        plaintext (bytes): The plaintext to encrypt
+
+    Returns:
+        tuple: A tuple containing the nonces for each cipher and the final encrypted ciphertext
     """
     # XChaCha20
     xchacha_nonce = secrets.token_bytes(24)
