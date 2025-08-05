@@ -5,21 +5,21 @@ from argon2 import PasswordHasher
 argon_time_cost =   [4, 4, 8]
 argon_memory_cost = [65_536, 1_048_576, 2_097_152]
 argon_parallelism = [4, 4, 8]
-argon_hash_length = [64, 64, 64]
+argon_hash_length = [64, 64, 128] #
 argon_encoding = 'utf-8'
 
-def derive_key(hash_length: int, password: bytes, salt_length: int, mode: int):
+def derive_key(hash_length: int, password: bytes, salt_length: int, mode: int) -> str:
     """
     Use Argon2 to derive a key from a password.
     
     Args:
-        hash_length (int): The length of the hashed key, in bytes.
-        password (bytes): The password.
-        salt_length (int): The length of the salt, in bytes.
+        hash_length (int): The length of the hashed key, in bytes
+        password (bytes): The password
+        salt_length (int): The length of the salt, in bytes
         mode (int): 0-light, 1-normal, 2-overkill
 
     Returns:
-        tuple: hash, salt
+        str: The argon salt along with parameters
     """
 
     # Light Mode
