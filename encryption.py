@@ -1,9 +1,10 @@
 import secrets
 from Crypto.Cipher import ChaCha20
+import camellia
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-def xchacha(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]:
+def xchacha_encrypt(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]:
     """
     Use the XChaCha20 cipher to encrypt data.
 
@@ -15,12 +16,29 @@ def xchacha(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]:
         tuple: A tuple containing the nonce and the encrypted ciphertext 
     """
     xchacha_nonce = secrets.token_bytes(24)
-    cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
-    ciphertext = cipher.encrypt(plaintext)
+    xchacha_cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
+    xchacha_ciphertext = xchacha_cipher.encrypt(plaintext)
 
-    return xchacha_nonce, ciphertext
+    return xchacha_nonce, xchacha_ciphertext
 
-def xchacha_camellia_aes(xchacha_key: bytes, camellia_key: bytes, aes_key: bytes, plaintext: bytes) -> tuple[bytes, bytes, bytes, bytes]:
+def xchacha_decrypt(xchacha_key: bytes, xchacha_nonce:bytes, ciphertext: bytes) -> bytes:
+    """
+    Decrypt data with XChaCha20
+    
+    Args:
+        xchacha_key (bytes): The secret key used for encryption
+        xchacha_nonce (bytes): The randomly-generated nonce used for encryption
+        ciphertext (bytes): The encrypted ciphertext
+    
+    Returns:
+        bytes: The decrypted plaintext
+    """
+    xchacha_cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
+    plaintext = xchacha_cipher.decrypt(ciphertext)
+    
+    return plaintext
+
+def xchacha_camellia_aes_encrypt(xchacha_key: bytes, camellia_key: bytes, aes_key: bytes, plaintext: bytes) -> tuple[bytes, bytes, bytes, bytes]:
     """
     Use XChaCha20, Camellia-CTR, and AES-256-CTR cascaded to encrypt data.
 
@@ -51,3 +69,35 @@ def xchacha_camellia_aes(xchacha_key: bytes, camellia_key: bytes, aes_key: bytes
     aes_ciphertext = aes_encryptor.update(camellia_ciphertext) + aes_encryptor.finalize()
 
     return xchacha_nonce, camellia_nonce, aes_nonce, aes_ciphertext
+
+def xchacha_camellia_aes_decrypt(xchacha_key: bytes, xchacha_nonce: bytes, camellia_key: bytes, camellia_nonce: bytes, aes_key: bytes, aes_nonce: bytes, ciphertext: bytes) -> bytes:
+    """
+    Decrypt cascaded data using XChaCha20, Camellia-256-CTR, and AES-256-CTR.
+
+    Args:
+        xchacha_key (bytes): The 32 byte key used for XChaCha20 encryption
+        xchacha_nonce (bytes): The 24 bytes nonce used for XChaCha20 encryption
+        camellia_key (bytes): The 32 byte key used for Camellia-256-CTR encryption
+        camellia_nonce (bytes): The 16 byte nonce used for Camellia-256-CTR encryption
+        aes_key (bytes): The 32 byte key used for AES-256-CTR encryption
+        aes_nonce (bytes): The 16 byte nonce used for Camellia-256-CTR encryption
+        ciphertext (bytes): The encrypted ciphertext
+    
+    Returns:
+        bytes: The decrypted plaintext
+    """
+    # AES-256-CTR
+    aes_cipher = Cipher(algorithm=algorithms.AES256(key=aes_key), mode=modes.CTR(aes_nonce), backend=default_backend)
+    aes_decryptor = aes_cipher.decryptor()
+    camellia_ciphertext = aes_decryptor.update(ciphertext) + aes_decryptor.finalize()
+
+    # Camellia-256-CTR
+    camellia_cipher = Cipher(algorithm=algorithms.Camellia(key=camellia_key), mode=modes.CTR(camellia_nonce), backend=default_backend)
+    camellia_decryptor = camellia_cipher.decryptor()
+    xchacha_ciphertext = camellia_decryptor.update(camellia_ciphertext) + camellia_decryptor.finalize()
+
+    # XChaCha20
+    xchacha_cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
+    plaintext = xchacha_cipher.decrypt(xchacha_ciphertext)
+
+    return plaintext
