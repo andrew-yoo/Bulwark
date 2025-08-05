@@ -1,1 +1,4 @@
 # Andrews-Encryption-Standard
+
+## Specifications
+
