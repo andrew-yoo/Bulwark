@@ -1,7 +1,7 @@
 import secrets
 from Crypto.Cipher import ChaCha20
 
-def xchacha(xchacha_key: bytes, plaintext: bytes) -> bytes:
+def xchacha(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]:
     """
     Use the XChaCha20 cipher to encrypt data.
 
@@ -17,7 +17,7 @@ def xchacha(xchacha_key: bytes, plaintext: bytes) -> bytes:
 
     ciphertext = cipher.encrypt(plaintext)
 
-    return ciphertext
+    return xchacha_nonce, ciphertext
 
 def xchacha_aes_serpent():
     """
