@@ -39,7 +39,7 @@ def xchacha_decrypt(xchacha_key: bytes, xchacha_nonce:bytes, ciphertext: bytes) 
 
 def xchacha_camellia_aes_encrypt(xchacha_key: bytes, camellia_key: bytes, aes_key: bytes, plaintext: bytes) -> tuple[bytes, bytes, bytes, bytes]:
     """
-    Use XChaCha20, Camellia-OFB, and AES-256-CTR cascaded to encrypt data.
+    Use XChaCha20, Camellia-256-OFB, and AES-256-CTR cascaded to encrypt data.
 
     Args:
         xchacha_key (bytes): The key for XChaCha20
@@ -100,22 +100,3 @@ def xchacha_camellia_aes_decrypt(xchacha_key: bytes, xchacha_nonce: bytes, camel
     plaintext = xchacha_cipher.decrypt(xchacha_ciphertext)
 
     return plaintext
-
-
-# Test
-plaintext = b'plaintext plaintext plaintext'
-xchacha_password = secrets.token_bytes(32)
-camellia_password = secrets.token_bytes(32)
-aes_password = secrets.token_bytes(32)
-
-encrypted = xchacha_camellia_aes_encrypt(xchacha_password, camellia_password, aes_password, plaintext)
-xchacha_nonce = encrypted[0]
-camellia_nonce = encrypted[1]
-aes_nonce = encrypted[2]
-ciphertext = encrypted[3]
-
-new_plaintext = xchacha_camellia_aes_decrypt(xchacha_password, xchacha_nonce, camellia_password, camellia_nonce, aes_password, aes_nonce, ciphertext)
-
-print(plaintext)
-print(ciphertext)
-print(new_plaintext)
