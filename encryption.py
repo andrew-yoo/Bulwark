@@ -1,6 +1,5 @@
 import secrets
 from Crypto.Cipher import ChaCha20
-import camellia
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -40,7 +39,7 @@ def xchacha_decrypt(xchacha_key: bytes, xchacha_nonce:bytes, ciphertext: bytes) 
 
 def xchacha_camellia_aes_encrypt(xchacha_key: bytes, camellia_key: bytes, aes_key: bytes, plaintext: bytes) -> tuple[bytes, bytes, bytes, bytes]:
     """
-    Use XChaCha20, Camellia-CTR, and AES-256-CTR cascaded to encrypt data.
+    Use XChaCha20, Camellia-OFB, and AES-256-CTR cascaded to encrypt data.
 
     Args:
         xchacha_key (bytes): The key for XChaCha20
@@ -58,7 +57,7 @@ def xchacha_camellia_aes_encrypt(xchacha_key: bytes, camellia_key: bytes, aes_ke
 
     # Camellia-CTR
     camellia_nonce = secrets.token_bytes(16)
-    camellia_cipher = Cipher(algorithm=algorithms.Camellia(key=camellia_key), mode=modes.CTR(camellia_nonce), backend=default_backend)
+    camellia_cipher = Cipher(algorithm=algorithms.Camellia(key=camellia_key), mode=modes.OFB(camellia_nonce), backend=default_backend)
     camellia_encryptor = camellia_cipher.encryptor()
     camellia_ciphertext = camellia_encryptor.update(xchacha_ciphertext) + camellia_encryptor.finalize()
 
@@ -72,7 +71,7 @@ def xchacha_camellia_aes_encrypt(xchacha_key: bytes, camellia_key: bytes, aes_ke
 
 def xchacha_camellia_aes_decrypt(xchacha_key: bytes, xchacha_nonce: bytes, camellia_key: bytes, camellia_nonce: bytes, aes_key: bytes, aes_nonce: bytes, ciphertext: bytes) -> bytes:
     """
-    Decrypt cascaded data using XChaCha20, Camellia-256-CTR, and AES-256-CTR.
+    Decrypt cascaded data using XChaCha20, Camellia-256-OFB, and AES-256-CTR.
 
     Args:
         xchacha_key (bytes): The 32 byte key used for XChaCha20 encryption
@@ -91,8 +90,8 @@ def xchacha_camellia_aes_decrypt(xchacha_key: bytes, xchacha_nonce: bytes, camel
     aes_decryptor = aes_cipher.decryptor()
     camellia_ciphertext = aes_decryptor.update(ciphertext) + aes_decryptor.finalize()
 
-    # Camellia-256-CTR
-    camellia_cipher = Cipher(algorithm=algorithms.Camellia(key=camellia_key), mode=modes.CTR(camellia_nonce), backend=default_backend)
+    # Camellia-256-OFB
+    camellia_cipher = Cipher(algorithm=algorithms.Camellia(key=camellia_key), mode=modes.OFB(camellia_nonce), backend=default_backend)
     camellia_decryptor = camellia_cipher.decryptor()
     xchacha_ciphertext = camellia_decryptor.update(camellia_ciphertext) + camellia_decryptor.finalize()
 
@@ -101,3 +100,22 @@ def xchacha_camellia_aes_decrypt(xchacha_key: bytes, xchacha_nonce: bytes, camel
     plaintext = xchacha_cipher.decrypt(xchacha_ciphertext)
 
     return plaintext
+
+
+# Test
+plaintext = b'plaintext plaintext plaintext'
+xchacha_password = secrets.token_bytes(32)
+camellia_password = secrets.token_bytes(32)
+aes_password = secrets.token_bytes(32)
+
+encrypted = xchacha_camellia_aes_encrypt(xchacha_password, camellia_password, aes_password, plaintext)
+xchacha_nonce = encrypted[0]
+camellia_nonce = encrypted[1]
+aes_nonce = encrypted[2]
+ciphertext = encrypted[3]
+
+new_plaintext = xchacha_camellia_aes_decrypt(xchacha_password, xchacha_nonce, camellia_password, camellia_nonce, aes_password, aes_nonce, ciphertext)
+
+print(plaintext)
+print(ciphertext)
+print(new_plaintext)
