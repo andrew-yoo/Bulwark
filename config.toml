@@ -1,0 +1,8 @@
+title = "Configuration"
+
+[magic_number] 
+magic_number_string = "file"
+
+[version]
+semantic_version = "0.1.0"
+version_string = 1

@@ -12,7 +12,7 @@ def xchacha_encrypt(xchacha_key: bytes, plaintext: bytes) -> tuple[bytes, bytes]
         plaintext (bytes): The plaintext to encrypt
 
     Returns:
-        tuple: A tuple containing the nonce and the encrypted ciphertext 
+        tuple: nonce, ciphertext
     """
     xchacha_nonce = secrets.token_bytes(24)
     xchacha_cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
@@ -30,7 +30,7 @@ def xchacha_decrypt(xchacha_key: bytes, xchacha_nonce:bytes, ciphertext: bytes) 
         ciphertext (bytes): The encrypted ciphertext
     
     Returns:
-        bytes: The decrypted plaintext
+        bytes: Plaintext
     """
     xchacha_cipher = ChaCha20.new(key=xchacha_key, nonce=xchacha_nonce)
     plaintext = xchacha_cipher.decrypt(ciphertext)
@@ -48,7 +48,7 @@ def xchacha_camellia_aes_encrypt(xchacha_key: bytes, camellia_key: bytes, aes_ke
         plaintext (bytes): The plaintext to encrypt
 
     Returns:
-        tuple: A tuple containing the nonces for each cipher and the final encrypted ciphertext
+        tuple: XChaCha nonce, Camellia nonce, AES nonce, ciphertext
     """
     # XChaCha20
     xchacha_nonce = secrets.token_bytes(24)
@@ -76,14 +76,14 @@ def xchacha_camellia_aes_decrypt(xchacha_key: bytes, xchacha_nonce: bytes, camel
     Args:
         xchacha_key (bytes): The 32 byte key used for XChaCha20 encryption
         xchacha_nonce (bytes): The 24 bytes nonce used for XChaCha20 encryption
-        camellia_key (bytes): The 32 byte key used for Camellia-256-CTR encryption
-        camellia_nonce (bytes): The 16 byte nonce used for Camellia-256-CTR encryption
+        camellia_key (bytes): The 32 byte key used for Camellia-256-OFB encryption
+        camellia_nonce (bytes): The 16 byte nonce used for Camellia-256-OFB encryption
         aes_key (bytes): The 32 byte key used for AES-256-CTR encryption
-        aes_nonce (bytes): The 16 byte nonce used for Camellia-256-CTR encryption
+        aes_nonce (bytes): The 16 byte nonce used for AES-256-CTR encryption
         ciphertext (bytes): The encrypted ciphertext
     
     Returns:
-        bytes: The decrypted plaintext
+        bytes: Plaintext
     """
     # AES-256-CTR
     aes_cipher = Cipher(algorithm=algorithms.AES256(key=aes_key), mode=modes.CTR(aes_nonce), backend=default_backend)
