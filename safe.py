@@ -132,7 +132,7 @@ def write_file(file_name: str, magic_number_string: str, version_code_int: int, 
     # Not including magic number, version code, or MAC
     # file_contents = mode_bytes + bytes(1) + bytes(8) + argon_salt + xchacha_nonce + camellia_nonce + aes_nonce + ciphertext
     
-    with open(f'{file_name} encrypted', 'wb') as new_file:
+    with open(f'{file_name}.blwk', 'wb') as new_file:
         new_file.write(magic_number) # Magic Number
         new_file.write(version_code) # Version Code
         new_file.write(mac) # Message Authentication Code

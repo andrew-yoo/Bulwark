@@ -37,5 +37,5 @@ if args.decrypt:
 
     data = safe.unlock_safe(password=password, argon_salt=unpacked[0], xchacha_nonce=unpacked[1], camellia_nonce=unpacked[2], aes_nonce=unpacked[3], ciphertext=unpacked[4], mode=1)
 
-    with open('decrypted', 'wb') as file:
+    with open(f'{(args.file_path).replace('.blwk', '')}', 'wb') as file:
         file.write(data)
