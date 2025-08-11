@@ -21,7 +21,7 @@ if args.encrypt:
     with open(args.file_path, 'rb') as file:
         plaintext = file.read()
 
-    #ONLY USING NORMAL MODE FOR NOW
+    # ONLY USING NORMAL MODE FOR NOW
 
     password = input("Password: ")
 
@@ -29,5 +29,13 @@ if args.encrypt:
 
 if args.decrypt:
     
-    with open(args.file_path, 'rb') as file:
-        plaintext = file.read()
+    unpacked = safe.read_file(args.file_path)
+
+    password = input("Password: ").encode()
+
+    # ONLY NORMAL MODE FOR NOW
+
+    data = safe.unlock_safe(password=password, argon_salt=unpacked[0], xchacha_nonce=unpacked[1], camellia_nonce=unpacked[2], aes_nonce=unpacked[3], ciphertext=unpacked[4], mode=1)
+
+    with open('decrypted', 'wb') as file:
+        file.write(data)

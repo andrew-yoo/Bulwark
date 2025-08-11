@@ -77,6 +77,7 @@ def unlock_safe(password: bytes, argon_salt: bytes, xchacha_nonce: bytes, camell
         camellia_nonce (bytes): The nonce used for Camellia encryption
         aes_nonce (bytes): The nonce used for AES encryption
         ciphertext (bytes) The encrypted ciphertext
+        mode (int): 0-light, 1-normal, 2-overkill
 
     Returns:
         bytes: Decrypted plaintext
@@ -147,7 +148,11 @@ def write_file(file_name: str, magic_number_string: str, version_code_int: int, 
 
 def read_file(file_path: str):
     """
+    Args:
+        file_path (str): The file path of the file to read
     
+    Returns:
+        tuple: Argon salt, XChaCha nonce, Camellia nonce, AES nonce, Ciphertext, Mode
     """
     try:
         with open(file_path, 'rb') as open_file:
