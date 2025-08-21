@@ -145,7 +145,6 @@ def write_file(file_name: str, magic_number_string: str, version_code_int: int, 
         new_file.write(aes_nonce) # Salt for AES or 16 null bytes
         new_file.write(ciphertext)
 
-
 def read_file(file_path: str):
     """
     Args:

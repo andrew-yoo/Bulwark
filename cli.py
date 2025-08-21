@@ -11,8 +11,10 @@ version_code = configuration["version"]["version_string"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", help="Enter the file path of the file to encrypt or decrypt.")
-parser.add_argument("-e", "--encrypt", action="store_true")
-parser.add_argument("-d", "--decrypt", action="store_true")
+parser.add_argument("-e", "--encrypt", action="store_true", help="Encrypt the file")
+parser.add_argument("-d", "--decrypt", action="store_true", help="Decrypt the file")
+parser.add_argument("-l", "--light", action="store_true", help="Use light mode")
+parser.add_argument("-o", "--overkill", action="store_true", help="Use overkill mode")
 
 args = parser.parse_args()
 
