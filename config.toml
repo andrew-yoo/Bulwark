@@ -1,7 +1,7 @@
 title = "Configuration"
 
 [magic_number] 
-magic_number_string = "file"
+magic_number_string = "blwk"
 
 [version]
 semantic_version = "0.1.0"

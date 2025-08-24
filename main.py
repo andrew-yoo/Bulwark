@@ -4,6 +4,10 @@ import safe
 
 def main():
     settings = parse()
+    if settings['action'] == 'encrypt':
+        encrypt(settings)
+    elif settings['action'] == 'decrypt':
+        decrypt(settings)
 
 def parse():
     """
@@ -36,6 +40,37 @@ def parse():
         settings['mode'] = 1
 
     return settings
+
+def encrypt(settings):
+    """
+    """
+    with open(settings['file_path'], 'rb') as file:
+        plaintext = file.read()
+    password = input('Password: ').encode()
+
+    with open("config.toml", mode="rb") as toml_file:
+        config = tomllib.load(toml_file)
+
+    safe.write_file(file_name=settings['file_path'],
+                    magic_number_string=config['magic_number']['magic_number_string'],
+                    version_code_int=config['version']['version_string'],
+                    password=password,
+                    plaintext=plaintext,
+                    mode=settings['mode'])
+
+def decrypt(settings):
+    """
+    """
+    unpacked = safe.read_file(settings['file_path'])
+
+    password = input("Password: ").encode()
+
+    data = safe.unlock_safe(password=password,
+                                argon_salt=unpacked[0], xchacha_nonce=unpacked[1], camellia_nonce=unpacked[2], aes_nonce=unpacked[3], ciphertext=unpacked[4], 
+                                mode=settings['mode'])
+
+    with open(f'{(settings['file_path']).replace('.blwk', '')}', 'wb') as file:
+        file.write(data)
 
 if __name__ == "__main__":
     main()
