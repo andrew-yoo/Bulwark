@@ -12,6 +12,7 @@ def main():
 def parse():
     """
     Parse command line arguments and execute the appropriate function.
+    
     Returns:
         dict: file path, encryption/decryption, mode
     """
@@ -43,6 +44,13 @@ def parse():
 
 def encrypt(settings):
     """
+    Reads the plaintext and creates a new encrypted file with a '.blwk' extension.
+
+    Args:
+        settings (dict): file_path, action, mode
+    
+    Returns: 
+        None: 
     """
     with open(settings['file_path'], 'rb') as file:
         plaintext = file.read()
@@ -60,6 +68,13 @@ def encrypt(settings):
 
 def decrypt(settings):
     """
+    Decrypts the ciphertext and returns the unencrypted plantext.
+
+    Args:
+        settings (dict): file_path, action, mode
+    
+    Returns:
+        None
     """
     unpacked = safe.read_file(settings['file_path'])
 
