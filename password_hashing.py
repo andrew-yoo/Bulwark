@@ -42,7 +42,6 @@ def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) 
     if padding_needed:
         encoded_hash += '=' * (4 - padding_needed)
 
-
     # Decode the hash
     hash = base64.b64decode(encoded_hash)
 

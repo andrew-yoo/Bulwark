@@ -76,13 +76,10 @@ def decrypt(settings):
     Returns:
         None
     """
-    unpacked = safe.read_file(settings['file_path'])
 
     password = input("Password: ").encode()
 
-    data = safe.unlock_safe(password=password,
-                                argon_salt=unpacked[0], xchacha_nonce=unpacked[1], camellia_nonce=unpacked[2], aes_nonce=unpacked[3], ciphertext=unpacked[4], 
-                                mode=settings['mode'])
+    data = safe.unlock_safe(password=password, file_path=settings['file_path'])
 
     with open(f'{(settings['file_path']).replace('.blwk', '')}', 'wb') as file:
         file.write(data)

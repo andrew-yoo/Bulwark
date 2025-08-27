@@ -1,4 +1,5 @@
 import secrets
+import tomllib
 
 import password_hashing
 import encryption
@@ -66,22 +67,38 @@ def lock_safe(password: bytes, plaintext: bytes, mode: int) -> tuple[bytes, byte
     
     return mac_key, argon_salt, xchacha_nonce, camellia_nonce, aes_nonce, ciphertext
 
-def unlock_safe(password: bytes, argon_salt: bytes, xchacha_nonce: bytes, camellia_nonce: bytes, aes_nonce: bytes, ciphertext: bytes, mode: int):
+def unlock_safe(password: bytes, file_path: str):
     """
     Decrypts the ciphertext.
     
     Args:
         password (bytes): The user-supplied password
-        argon_salt (bytes): The salt used for the Argon2 PBKDF
-        xchacha_nonce (bytes): The nonce used for XChaCha20 encryption
-        camellia_nonce (bytes): The nonce used for Camellia encryption
-        aes_nonce (bytes): The nonce used for AES encryption
-        ciphertext (bytes) The encrypted ciphertext
-        mode (int): 0-light, 1-normal, 2-overkill
+        file_path (str): The file path of the ciphertext
 
     Returns:
         bytes: Decrypted plaintext
     """
+
+    magic_number, version, mac, mode, argon_salt, xchacha_nonce, camellia_nonce, aes_nonce, ciphertext = read_file(file_path)
+
+    # Make sure the magic number and version are correct
+    with open("config.toml", mode="rb") as toml_file:
+        config = tomllib.load(toml_file)
+    if magic_number != config['magic_number']['magic_number_string'].encode():
+        raise Exception('Incorrect magic number')
+    elif version != config['version']['version_string'].to_bytes(2,'little'):
+        raise Exception('Incorrect version')
+    
+    # Generate the Mac to check against the provided one
+    if (mode == 0) or (mode == 1):
+        mac_key = password_hashing.derive_key(64, password, argon_salt, mode)[0]
+    else:
+        mac_key = password_hashing.derive_key(128, password, argon_salt, mode)[0]
+    
+    # Check to see if the MACs match
+    if not authentication.check_mac(code=mac,mac_key=mac_key,message=ciphertext):
+        raise Exception('Incorrect MAC')
+
     if mode == 0:
         keystring = password_hashing.derive_key(hash_length=64, password=password, argon_salt=argon_salt, mode=0)
         xchacha_key = keystring[1]
@@ -151,7 +168,7 @@ def read_file(file_path: str):
         file_path (str): The file path of the file to read
     
     Returns:
-        tuple: Argon salt, XChaCha nonce, Camellia nonce, AES nonce, Ciphertext, Mode
+        tuple: Magic number, Version, MAC, Mode, Argon salt, XChaCha nonce, Camellia nonce, AES nonce, Ciphertext
     """
     try:
         with open(file_path, 'rb') as open_file:
@@ -170,9 +187,5 @@ def read_file(file_path: str):
     except FileNotFoundError:
         print('File not found')
         exit(1)
-    
-    except Exception as e:
-        print(f'Error: {e}')
-        exit(1)
-    
-    return argon_salt, xchacha_nonce, camellia_nonce, aes_nonce, ciphertext, mode
+
+    return magic_number, version, mac, mode, argon_salt, xchacha_nonce, camellia_nonce, aes_nonce, ciphertext
