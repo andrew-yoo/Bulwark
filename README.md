@@ -48,7 +48,7 @@ options:
     - XChaCha20 for light and normal modes.
     - XChaCha20, Camellia, and AES cascaded for overkill mode.
 - Authentication
-    - Keyed Blake3
+    - Keyed Blake3 (Encrypt-then-MAC)
 
 ## .blwk File Structure
 
