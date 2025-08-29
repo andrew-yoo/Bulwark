@@ -5,6 +5,9 @@ import password_hashing
 import encryption
 import authentication
 
+# The functions write_file and unlock_safe are the only ones that need to be called. 
+# TODO: make this less confusing
+
 def lock_safe(password: bytes, plaintext: bytes, mode: int) -> tuple[bytes, bytes, bytes, bytes, bytes, bytes]:
     """
     Generates keys and encrypts data.

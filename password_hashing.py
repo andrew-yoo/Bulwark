@@ -24,7 +24,6 @@ def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) 
     if mode not in [0, 1, 2]:
         raise ValueError("Mode incorrectly defined. Must be 0 (light), 1 (normal), or 2 (overkill).")
 
-    # Initialize PasswordHasher with appropriate parameters
     ph = PasswordHasher(
         time_cost=argon_time_cost[mode],
         memory_cost=argon_memory_cost[mode],
@@ -33,7 +32,6 @@ def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) 
         encoding=argon_encoding
     )
     
-    # Generate the hash
     hash_string = ph.hash(password=password, salt=argon_salt)
     
     encoded_hash = hash_string.split('$')[-1]
@@ -42,7 +40,7 @@ def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) 
     if padding_needed:
         encoded_hash += '=' * (4 - padding_needed)
 
-    # Decode the hash
+    # Argon2 output is given as a base64-encoded string. Decode to binary:
     hash = base64.b64decode(encoded_hash)
 
     # Split the hash based on the mode
