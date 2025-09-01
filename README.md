@@ -57,9 +57,9 @@ options:
 | Magic Number        | 4         | 0           |
 | Version             | 2         | 4           |
 | MAC                 | 32        | 6           |
-| Settings 1          | 1         | 38          |
-| Settings 2          | 1         | 39          |
-| Miscellaneous       | 8         | 40          |
+| Mode                | 1         | 38          |
+| Future Settings     | 1         | 39          |
+| More Future Space   | 8         | 40          |
 | Argon2 Salt         | 32        | 48          |
 | XChaCha20 Nonce     | 24        | 80          |
 | Camellia Nonce      | 16        | 104         |
