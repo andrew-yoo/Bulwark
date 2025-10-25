@@ -5,9 +5,12 @@ from argon2 import PasswordHasher
 argon_time_cost = [4, 4, 8]
 argon_memory_cost = [65_536, 1_048_576, 2_097_152]
 argon_parallelism = [4, 4, 8]
-argon_encoding = 'utf-8'
+argon_encoding = "utf-8"
 
-def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) -> tuple[bytes, bytes, bytes, bytes]:
+
+def derive_key(
+    hash_length: int, password: bytes, argon_salt: bytes, mode: int
+) -> tuple[bytes, bytes, bytes, bytes]:
     """
     Use Argon2 to derive a key from a password.
 
@@ -20,25 +23,27 @@ def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) 
     Returns:
         tuple: A tuple containing four byte strings derived from the hash.
     """
-    
+
     if mode not in [0, 1, 2]:
-        raise ValueError("Mode incorrectly defined. Must be 0 (light), 1 (normal), or 2 (overkill).")
+        raise ValueError(
+            "Mode incorrectly defined. Must be 0 (light), 1 (normal), or 2 (overkill)."
+        )
 
     ph = PasswordHasher(
         time_cost=argon_time_cost[mode],
         memory_cost=argon_memory_cost[mode],
         parallelism=argon_parallelism[mode],
         hash_len=hash_length,
-        encoding=argon_encoding
+        encoding=argon_encoding,
     )
-    
+
     hash_string = ph.hash(password=password, salt=argon_salt)
-    
-    encoded_hash = hash_string.split('$')[-1]
-    
+
+    encoded_hash = hash_string.split("$")[-1]
+
     padding_needed = len(encoded_hash) % 4
     if padding_needed:
-        encoded_hash += '=' * (4 - padding_needed)
+        encoded_hash += "=" * (4 - padding_needed)
 
     # Argon2 output is given as a base64-encoded string. Decode to binary:
     hash = base64.b64decode(encoded_hash)
@@ -47,8 +52,8 @@ def derive_key(hash_length: int, password: bytes, argon_salt: bytes, mode: int) 
     if mode in [0, 1]:
         hash1 = hash[::2]
         hash2 = hash[1::2]
-        hash3 = b''  # Placeholder for future use
-        hash4 = b''  # Placeholder for future use
+        hash3 = b""  # Placeholder for future use
+        hash4 = b""  # Placeholder for future use
     else:
         hash1 = hash[::4]
         hash2 = hash[1::4]

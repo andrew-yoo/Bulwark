@@ -1,5 +1,6 @@
 from blake3 import blake3
 
+
 def mac(mac_key: bytes, message: bytes) -> bytes:
     """
     Use keyed Blake3 as a MAC.
@@ -13,10 +14,11 @@ def mac(mac_key: bytes, message: bytes) -> bytes:
     """
     if len(mac_key) != 32:
         raise ValueError("MAC key must be 32 bytes.")
-    
+
     return blake3(message, key=mac_key).digest()
 
-def check_mac(code: bytes, mac_key:bytes, message: bytes):
+
+def check_mac(code: bytes, mac_key: bytes, message: bytes):
     """
     Verifies the authenticity of a code using Blake3 keyed hashing.
 
